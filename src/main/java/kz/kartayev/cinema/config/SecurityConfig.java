@@ -8,7 +8,6 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -49,7 +48,8 @@ public class SecurityConfig {
   public AuthenticationManager authManager(HttpSecurity http) throws Exception {
     return http.getSharedObject(AuthenticationManagerBuilder.class)
             .userDetailsService(personDetailsService)
-            // при аутентификации Spring Security будет автоматически прогонять через BCryptPasswordEncoder
+            // при аутентификации Spring Security будет автоматически прогонять через
+            // BCryptPasswordEncoder
             .passwordEncoder(getPasswordEncoder())
             .and()
             .build();

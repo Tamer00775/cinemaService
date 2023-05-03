@@ -13,12 +13,11 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+
 
 /**
  * Authentication controller for user.
  */
-
 @Controller
 @RequestMapping("/auth")
 public class AuthController {
@@ -50,9 +49,9 @@ public class AuthController {
   }
 
   /**
-   * Mapping from PersonDto to Person,
+   * Mapping from PersonDto to Person.
    * */
-  public Person toPerson(PersonDto personDto){
+  public Person toPerson(PersonDto personDto) {
     return modelMapper.map(personDto, Person.class);
   }
 }
