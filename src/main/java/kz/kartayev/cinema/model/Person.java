@@ -2,6 +2,7 @@ package kz.kartayev.cinema.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -55,7 +56,13 @@ public class Person {
   @Column(name = "password")
   private String password;
 
-  @OneToMany(mappedBy = "person")
+  @OneToMany(fetch = FetchType.EAGER,mappedBy = "person")
   @JsonIgnore
   private List<Comment> comments;
+
+  @OneToMany(mappedBy = "person")
+  private List<TransactionHistory> transactions;
+
+  @Column(name="wallet")
+  private int wallet;
 }

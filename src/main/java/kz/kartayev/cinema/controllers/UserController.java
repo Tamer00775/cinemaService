@@ -5,6 +5,7 @@ import kz.kartayev.cinema.dto.PersonDto;
 import kz.kartayev.cinema.model.Comment;
 import kz.kartayev.cinema.model.Person;
 import kz.kartayev.cinema.service.PersonService;
+import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,9 +40,9 @@ public class UserController {
   /**
    * Get comments which written by user.
    * */
-  @GetMapping("/myComments")
+  @GetMapping("/mycomments")
   public List<Comment> myComments() {
-    return personService.getInfo().getComments();
+     return personService.getInfo().getComments();
   }
 
   /**

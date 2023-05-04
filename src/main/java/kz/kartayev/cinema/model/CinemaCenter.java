@@ -34,5 +34,4 @@ public class CinemaCenter {
   @OneToMany(mappedBy = "cinemaCenter")
   @JsonIgnore
   private List<Movie> movieList;
-
 }

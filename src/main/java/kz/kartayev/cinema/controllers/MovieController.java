@@ -1,14 +1,15 @@
 package kz.kartayev.cinema.controllers;
 
-import java.util.Date;
 import java.util.List;
 import kz.kartayev.cinema.dto.CommentDto;
+import kz.kartayev.cinema.dto.TransactionDto;
 import kz.kartayev.cinema.model.Comment;
 import kz.kartayev.cinema.model.Movie;
+import kz.kartayev.cinema.model.TransactionHistory;
 import kz.kartayev.cinema.service.CommentService;
 import kz.kartayev.cinema.service.MovieService;
 import kz.kartayev.cinema.service.PersonService;
-import org.hibernate.Hibernate;
+import kz.kartayev.cinema.service.TransactionService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -20,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.validation.Valid;
+
 /**
  * Controller class for Movie.
  * */
@@ -30,17 +33,19 @@ public class MovieController {
   private final ModelMapper modelMapper;
   private final PersonService personService;
   private final CommentService commentService;
+  private final TransactionService transactionService;
 
   /**
    * Movie Controller.
    * */
   @Autowired
   public MovieController(MovieService movieService, ModelMapper modelMapper,
-                         PersonService personService, CommentService commentService) {
+                         PersonService personService, CommentService commentService, TransactionService transactionService) {
     this.movieService = movieService;
     this.modelMapper = modelMapper;
     this.personService = personService;
     this.commentService = commentService;
+    this.transactionService = transactionService;
   }
 
   /**
@@ -66,15 +71,16 @@ public class MovieController {
   public ResponseEntity<HttpStatus> saveComment(@PathVariable("id") int movieId, @RequestBody
                                                 CommentDto commentDto) {
     // TODO: ADD BINDING RESULT AND VALIDATION FOR [0-5]
-    Movie movie = movieService.index(movieId);
-    Comment comment = toComment(commentDto);
-    comment.setCreatedAt(new Date());
-    comment.setPerson(personService.getInfo());
-    comment.setMovie(movie);
-    Hibernate.initialize(comment);
-    double sum = movie.getRaiting();
-    movie.setRaiting((sum + commentDto.getRating()) / (movie.getComments().size() + 1));
-    Hibernate.initialize(movie);
+    movieService.save(movieId, toComment(commentDto)) ;
+    return ResponseEntity.ok(HttpStatus.OK);
+  }
+
+  @PostMapping("/{id}/buy")
+  public ResponseEntity<HttpStatus> buyTickets(@PathVariable("id") int movie_id, @RequestBody
+                                               @Valid TransactionDto transactionDto){
+    TransactionHistory transactionHistory = toTransaction(transactionDto);
+    transactionHistory.setTotalPrice(transactionDto.getQuantity() * index(movie_id).getPrice());
+    transactionService.buyTicket(movie_id, transactionHistory);
     return ResponseEntity.ok(HttpStatus.OK);
   }
 
@@ -83,5 +89,9 @@ public class MovieController {
    * */
   public Comment toComment(CommentDto commentDto) {
     return modelMapper.map(commentDto, Comment.class);
+  }
+
+  public TransactionHistory toTransaction(TransactionDto transactionDto){
+    return modelMapper.map(transactionDto, TransactionHistory.class);
   }
 }
