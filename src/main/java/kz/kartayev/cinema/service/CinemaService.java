@@ -47,4 +47,7 @@ public class CinemaService {
     }
     return movies;
   }
+  public void saveCinemaCenter(CinemaCenter cinema){
+    cinemaRepository.save(cinema);
+  }
 }

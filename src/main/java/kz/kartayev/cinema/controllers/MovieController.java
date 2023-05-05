@@ -10,6 +10,7 @@ import kz.kartayev.cinema.service.CommentService;
 import kz.kartayev.cinema.service.MovieService;
 import kz.kartayev.cinema.service.PersonService;
 import kz.kartayev.cinema.service.TransactionService;
+import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -79,8 +80,13 @@ public class MovieController {
   public ResponseEntity<HttpStatus> buyTickets(@PathVariable("id") int movie_id, @RequestBody
                                                @Valid TransactionDto transactionDto){
     TransactionHistory transactionHistory = toTransaction(transactionDto);
+    transactionHistory.setMovie(index(movie_id));
+    transactionHistory.setCinemaCenter(index(movie_id).getCinemaCenter());
     transactionHistory.setTotalPrice(transactionDto.getQuantity() * index(movie_id).getPrice());
-    transactionService.buyTicket(movie_id, transactionHistory);
+    transactionService.buyTicket(transactionHistory);
+    Movie movie = index(movie_id);
+    movie.setPlaces(movie.getPlaces() - transactionDto.getQuantity());
+    movieService.save(movie);
     return ResponseEntity.ok(HttpStatus.OK);
   }
 

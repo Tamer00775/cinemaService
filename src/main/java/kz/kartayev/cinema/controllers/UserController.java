@@ -1,6 +1,8 @@
 package kz.kartayev.cinema.controllers;
 
 import java.util.List;
+
+import kz.kartayev.cinema.dto.MoneyDto;
 import kz.kartayev.cinema.dto.PersonDto;
 import kz.kartayev.cinema.model.Comment;
 import kz.kartayev.cinema.model.Person;
@@ -8,7 +10,11 @@ import kz.kartayev.cinema.service.PersonService;
 import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -43,6 +49,17 @@ public class UserController {
   @GetMapping("/mycomments")
   public List<Comment> myComments() {
      return personService.getInfo().getComments();
+  }
+  /**
+   * Set new money.
+   * */
+  @PostMapping("/money")
+  public ResponseEntity<HttpStatus> addMoney(@RequestBody MoneyDto money){
+    // TODO : Check if bank card is filled.
+    Person person = personService.getInfo();
+    person.setWallet(person.getWallet() + money.getTotalMoney());
+    personService.save(person);
+    return ResponseEntity.ok(HttpStatus.OK);
   }
 
   /**

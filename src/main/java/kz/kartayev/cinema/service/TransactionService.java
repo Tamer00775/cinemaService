@@ -19,10 +19,11 @@ public class TransactionService {
     this.personService = personService;
   }
   @Transactional
-  public void buyTicket(int movie_id, TransactionHistory history){
+  public void buyTicket(TransactionHistory history){
     history.setCreatedAt(new Date());
     Person person = personService.getInfo();
     person.setWallet(person.getWallet() - history.getTotalPrice());
+    personService.save(person);
     history.setPerson(person);
     transactionRepository.save(history);
   }

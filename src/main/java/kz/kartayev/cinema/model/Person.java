@@ -61,8 +61,10 @@ public class Person {
   private List<Comment> comments;
 
   @OneToMany(mappedBy = "person")
+  @JsonIgnore
   private List<TransactionHistory> transactions;
 
   @Column(name="wallet")
+  @Min(value = 0, message = "You not have any money. Please plus some money!")
   private int wallet;
 }

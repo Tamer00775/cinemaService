@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -19,15 +21,26 @@ public class PersonService {
     this.personRepository = personRepository;
   }
 
+  public List<Person> findAll(){
+    return personRepository.findAll();
+  }
   public Person show(int id) throws Exception {
     Optional<Person> person = personRepository.findById(id);
     if(person.isEmpty())
       throw new Exception("Not found");
     return person.get();
   }
+  @Transactional
+  public void save(Person person){
+    personRepository.save(person);
+  }
   public Person getInfo(){
     Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
     PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
     return personDetails.getPerson();
+  }
+  @Transactional
+  public void delete(int personId){
+    personRepository.deleteById(personId);
   }
 }

@@ -3,7 +3,6 @@ package kz.kartayev.cinema.config;
 import kz.kartayev.cinema.service.PersonDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -32,13 +31,11 @@ public class SecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     return http.httpBasic()
             .and()
-            .csrf().disable()
-            .formLogin().disable()
-            .logout().logoutUrl("/logout").and()
             .authorizeRequests()
-            .antMatchers("/").permitAll()
-            .antMatchers(HttpMethod.POST, "/auth/registration").permitAll()
-            .anyRequest().authenticated().and().build();
+            .antMatchers("/admin**", "/admin/cinema/add").hasRole("ADMIN")
+            .antMatchers("/auth/registration", "/cinema").permitAll()
+            .anyRequest().hasAnyRole("USER", "ADMIN")
+            .and().build();
   }
 
   /**
