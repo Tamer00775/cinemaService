@@ -1,6 +1,7 @@
 package kz.kartayev.cinema.controllers;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import kz.kartayev.cinema.dto.MoneyDto;
 import kz.kartayev.cinema.dto.PersonDto;
@@ -8,7 +9,11 @@ import kz.kartayev.cinema.model.Comment;
 import kz.kartayev.cinema.model.Person;
 import kz.kartayev.cinema.model.TransactionHistory;
 import kz.kartayev.cinema.service.PersonService;
+import kz.kartayev.cinema.service.TransactionService;
 import org.hibernate.Hibernate;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,11 +33,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
   private final PersonService personService;
   private final ModelMapper modelMapper;
+  private final TransactionService transactionService;
 
   @Autowired
-  public UserController(PersonService personService, ModelMapper modelMapper) {
+  public UserController(PersonService personService, ModelMapper modelMapper, TransactionService transactionService) {
     this.personService = personService;
     this.modelMapper = modelMapper;
+    this.transactionService = transactionService;
   }
 
   /**
@@ -66,6 +73,7 @@ public class UserController {
   @GetMapping("/tickets")
   public List<TransactionHistory> myTickets(){
     Person person = personService.getInfo();
+    Hibernate.initialize(person);
     return person.getTransactions();
   }
 

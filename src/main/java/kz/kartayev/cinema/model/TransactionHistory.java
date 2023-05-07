@@ -1,5 +1,6 @@
 package kz.kartayev.cinema.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -33,9 +34,11 @@ public class TransactionHistory {
   private Person person;
   @ManyToOne
   @JoinColumn(name="movie_id", referencedColumnName = "movie_id")
+  @JsonIgnore
   private Movie movie;
   @ManyToOne
   @JoinColumn(name="cinema_id", referencedColumnName = "cinema_center_id")
+  @JsonIgnore
   private CinemaCenter cinemaCenter;
 
 }

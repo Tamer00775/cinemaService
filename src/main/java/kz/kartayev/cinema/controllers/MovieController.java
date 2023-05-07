@@ -99,6 +99,7 @@ public class MovieController {
     movie.setPlaces(movie.getPlaces() - transactionDto.getQuantity());
     movieService.save(movie);
     Hibernate.initialize(movie);
+    Hibernate.initialize(transactionHistory);
     return ResponseEntity.ok(HttpStatus.OK);
   }
 

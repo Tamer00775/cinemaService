@@ -49,6 +49,13 @@ public class AdminController {
     personService.delete(userId);
     return ResponseEntity.ok(HttpStatus.ACCEPTED);
   }
+  @PostMapping("/user/{id}/add")
+  public ResponseEntity<HttpStatus> manageAccessToAdmin(@PathVariable("id") int userId) throws Exception {
+    Person person = personService.show(userId);
+    person.setRole("ROLE_ADMIN");
+    personService.save(person);
+    return ResponseEntity.ok(HttpStatus.ACCEPTED);
+  }
   @PostMapping("/cinema/add")
   public ResponseEntity<HttpStatus> addCinemaCenter(@RequestBody CinemaDto cinemaDto){
     CinemaCenter cinemaCenter = toCinema(cinemaDto);
