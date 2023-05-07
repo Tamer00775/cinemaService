@@ -15,6 +15,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -64,6 +66,15 @@ public class MovieController {
   public List<Comment> comments(@PathVariable("id") int id) {
     return movieService.index(id).getComments();
   }
+  // TODO: FIX METHOD FOR DELETE COMMENT
+  @DeleteMapping("/{id}/comment/{comment_id}")
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
+  public ResponseEntity<HttpStatus> deleteComment(@PathVariable("id") int movieId,
+                                                  @PathVariable("comment_id") int commentId){
+    movieService.deleteComment(movieId, commentId);
+    return ResponseEntity.ok(HttpStatus.OK);
+  }
+
 
   /**
    * Save new comment.
@@ -71,7 +82,7 @@ public class MovieController {
   @PostMapping("/{id}/comment")
   public ResponseEntity<HttpStatus> saveComment(@PathVariable("id") int movieId, @RequestBody
                                                 CommentDto commentDto) {
-    // TODO: ADD BINDING RESULT AND VALIDATION FOR [0-5]
+    // TODO: ADD BINDING RESULT AND VALIDATION FOR [0-5] оценка
     movieService.save(movieId, toComment(commentDto)) ;
     return ResponseEntity.ok(HttpStatus.OK);
   }
@@ -87,6 +98,7 @@ public class MovieController {
     Movie movie = index(movie_id);
     movie.setPlaces(movie.getPlaces() - transactionDto.getQuantity());
     movieService.save(movie);
+    Hibernate.initialize(movie);
     return ResponseEntity.ok(HttpStatus.OK);
   }
 

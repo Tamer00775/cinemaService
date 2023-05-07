@@ -4,6 +4,7 @@ import kz.kartayev.cinema.model.Person;
 import kz.kartayev.cinema.repository.PersonRepository;
 import kz.kartayev.cinema.security.PersonDetails;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,7 @@ public class PersonService {
     return personDetails.getPerson();
   }
   @Transactional
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   public void delete(int personId){
     personRepository.deleteById(personId);
   }

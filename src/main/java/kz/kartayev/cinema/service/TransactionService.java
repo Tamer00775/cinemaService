@@ -3,6 +3,7 @@ package kz.kartayev.cinema.service;
 import kz.kartayev.cinema.model.Person;
 import kz.kartayev.cinema.model.TransactionHistory;
 import kz.kartayev.cinema.repository.TransactionRepository;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +19,7 @@ public class TransactionService {
     this.transactionRepository = transactionRepository;
     this.personService = personService;
   }
+  // TODO : Why transaction is not working?
   @Transactional
   public void buyTicket(TransactionHistory history){
     history.setCreatedAt(new Date());
@@ -26,5 +28,7 @@ public class TransactionService {
     personService.save(person);
     history.setPerson(person);
     transactionRepository.save(history);
+    Hibernate.initialize(person);
+    Hibernate.initialize(history);
   }
 }

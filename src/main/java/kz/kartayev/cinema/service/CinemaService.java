@@ -7,7 +7,9 @@ import kz.kartayev.cinema.model.CinemaCenter;
 import kz.kartayev.cinema.model.Movie;
 import kz.kartayev.cinema.repository.CinemaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Cinema Service for cinema class.
@@ -47,6 +49,14 @@ public class CinemaService {
     }
     return movies;
   }
+  /**
+   * Get Cinema center.
+   */
+  public CinemaCenter index(int id){
+    return cinemaRepository.findById(id).get();
+  }
+  @Transactional
+  @PreAuthorize("hasRole('ROLE_ADMIN')")
   public void saveCinemaCenter(CinemaCenter cinema){
     cinemaRepository.save(cinema);
   }

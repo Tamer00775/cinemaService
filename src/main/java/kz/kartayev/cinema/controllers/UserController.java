@@ -6,6 +6,7 @@ import kz.kartayev.cinema.dto.MoneyDto;
 import kz.kartayev.cinema.dto.PersonDto;
 import kz.kartayev.cinema.model.Comment;
 import kz.kartayev.cinema.model.Person;
+import kz.kartayev.cinema.model.TransactionHistory;
 import kz.kartayev.cinema.service.PersonService;
 import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
@@ -60,6 +61,12 @@ public class UserController {
     person.setWallet(person.getWallet() + money.getTotalMoney());
     personService.save(person);
     return ResponseEntity.ok(HttpStatus.OK);
+  }
+  //TODO:  FIX ME
+  @GetMapping("/tickets")
+  public List<TransactionHistory> myTickets(){
+    Person person = personService.getInfo();
+    return person.getTransactions();
   }
 
   /**

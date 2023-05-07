@@ -46,4 +46,13 @@ public class MovieService {
     Hibernate.initialize(personService.getInfo());
     movieRepository.save(movie);
   }
+  @Transactional
+  public void deleteComment(int movieId, int commentId){
+    int rating = commentService.findById(commentId).getRating();
+    commentService.deleteById(commentId);
+    Movie movie = index(movieId);
+    movie.setRaiting((movie.getRaiting() + rating) / (
+            (long) movie.getComments().size() - 1
+    ));
+  }
 }

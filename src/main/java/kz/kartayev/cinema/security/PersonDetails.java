@@ -2,7 +2,6 @@ package kz.kartayev.cinema.security;
 
 import java.util.Collection;
 import java.util.Collections;
-
 import kz.kartayev.cinema.model.Person;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

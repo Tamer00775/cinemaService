@@ -3,8 +3,10 @@ package kz.kartayev.cinema.config;
 import kz.kartayev.cinema.service.PersonDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
@@ -15,6 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
  * Security Configuration for Cinema Center Application.
  * */
 @EnableWebSecurity
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
   private final PersonDetailsService personDetailsService;
 
@@ -29,13 +32,15 @@ public class SecurityConfig {
    */
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    return http.httpBasic()
-            .and()
+    return http.httpBasic().and()
+            .csrf().disable()
             .authorizeRequests()
-            .antMatchers("/admin**", "/admin/cinema/add").hasRole("ADMIN")
-            .antMatchers("/auth/registration", "/cinema").permitAll()
+            .antMatchers(HttpMethod.POST, "/auth/registration").permitAll()
+            .antMatchers("/admin/**").hasRole("ADMIN")
             .anyRequest().hasAnyRole("USER", "ADMIN")
-            .and().build();
+            .and()
+            .formLogin().disable()
+            .build();
   }
 
   /**
