@@ -1,17 +1,19 @@
 package kz.kartayev.cinema.service;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import kz.kartayev.cinema.model.Person;
 import kz.kartayev.cinema.repository.PersonRepository;
 import kz.kartayev.cinema.security.PersonDetails;
+import kz.kartayev.cinema.util.ErrorMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class PersonService {
@@ -22,6 +24,14 @@ public class PersonService {
     this.personRepository = personRepository;
   }
 
+  public Person getUserByName(String username){
+    Pattern pattern = Pattern.compile("\\d");
+    Matcher matcher = pattern.matcher(username);
+    if(matcher.find())
+      throw new ErrorMessage("Your username have digits");
+    else
+      return personRepository.getPersonByUsername(username);
+  }
   public List<Person> findAll(){
     return personRepository.findAll();
   }

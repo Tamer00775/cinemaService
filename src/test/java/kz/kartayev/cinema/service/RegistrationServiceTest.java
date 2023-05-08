@@ -17,15 +17,15 @@ public class RegistrationServiceTest {
   @Autowired
   RegistrationService registrationService;
   @Test
-  public void getUserByPasswordCheck() throws ErrorMessage{
+  public void newUserShouldHaveCorrectCardAndPassword() throws ErrorMessage{
     Person person = new Person();
     person.setUsername("Tamerlan");
     person.setAge(19);
     person.setRole("ROLE_ADMIN");
-    person.setCard("0000000000000000");
+    person.setCard("00000000000000");
     person.setWallet(5000);
     person.setPassword("salam");
-    Assert.assertThrows("long name", ErrorMessage.class,
+    Assert.assertThrows("incorrect password", Exception.class,
             () -> registrationService.register(person));
   }
 }
