@@ -1,5 +1,7 @@
 package kz.kartayev.cinema.controllers;
 
+import java.util.List;
+import javax.validation.Valid;
 import kz.kartayev.cinema.dto.CinemaDto;
 import kz.kartayev.cinema.dto.MovieDto;
 import kz.kartayev.cinema.model.CinemaCenter;
@@ -12,6 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,9 +22,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-
+import static kz.kartayev.cinema.util.ErrorUtil.getFieldErrors;
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
@@ -49,7 +50,7 @@ public class AdminController {
     personService.delete(userId);
     return ResponseEntity.ok(HttpStatus.ACCEPTED);
   }
-  @PostMapping("/user/{id}/add")
+  @PostMapping("/user/{id}/manage")
   public ResponseEntity<HttpStatus> manageAccessToAdmin(@PathVariable("id") int userId) throws Exception {
     Person person = personService.show(userId);
     person.setRole("ROLE_ADMIN");
@@ -57,7 +58,10 @@ public class AdminController {
     return ResponseEntity.ok(HttpStatus.ACCEPTED);
   }
   @PostMapping("/cinema/add")
-  public ResponseEntity<HttpStatus> addCinemaCenter(@RequestBody CinemaDto cinemaDto){
+  public ResponseEntity<HttpStatus> addCinemaCenter(@RequestBody @Valid CinemaDto cinemaDto,
+                                                    BindingResult bindingResult){
+    if(bindingResult.hasErrors())
+      getFieldErrors(bindingResult);
     CinemaCenter cinemaCenter = toCinema(cinemaDto);
     cinemaService.saveCinemaCenter(cinemaCenter);
     return ResponseEntity.ok(HttpStatus.ACCEPTED);

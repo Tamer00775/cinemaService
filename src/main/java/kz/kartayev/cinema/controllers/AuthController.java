@@ -4,16 +4,20 @@ import javax.validation.Valid;
 import kz.kartayev.cinema.dto.PersonDto;
 import kz.kartayev.cinema.model.Person;
 import kz.kartayev.cinema.service.RegistrationService;
+import kz.kartayev.cinema.util.ErrorMessage;
+import kz.kartayev.cinema.util.ErrorResponse;
+import kz.kartayev.cinema.util.UserValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-
+import static kz.kartayev.cinema.util.ErrorUtil.getFieldErrors;
 
 /**
  * Authentication controller for user.
@@ -23,11 +27,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class AuthController {
   private final RegistrationService registrationService;
   private final ModelMapper modelMapper;
+  private final UserValidator userValidator;
 
   @Autowired
-  public AuthController(RegistrationService registrationService, ModelMapper modelMapper) {
+  public AuthController(RegistrationService registrationService, ModelMapper modelMapper, UserValidator userValidator) {
     this.registrationService = registrationService;
     this.modelMapper = modelMapper;
+    this.userValidator = userValidator;
   }
 
   /**
@@ -36,17 +42,14 @@ public class AuthController {
   @PostMapping("/registration")
   public ResponseEntity<HttpStatus> performRegistration(@RequestBody @Valid PersonDto personDto,
                                                         BindingResult bindingResult) {
+    userValidator.validate(toPerson(personDto), bindingResult);
     if (bindingResult.hasErrors()) {
-      System.out.println("ERROR");
+      getFieldErrors(bindingResult);
     }
     registrationService.register(toPerson(personDto));
     return ResponseEntity.ok(HttpStatus.ACCEPTED);
   }
 
-  @PostMapping("/login")
-  public void login(){
-
-  }
 
   /**
    * Mapping from PersonDto to Person.
@@ -54,4 +57,14 @@ public class AuthController {
   public Person toPerson(PersonDto personDto) {
     return modelMapper.map(personDto, Person.class);
   }
+  /**
+   * Handler for exceptions.
+   * */
+  @ExceptionHandler
+  public ResponseEntity<ErrorResponse> exceptionHandler(ErrorMessage errorMessage) {
+    ErrorResponse errorResponse = new ErrorResponse(errorMessage.getMessage(),
+            System.currentTimeMillis());
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
+
 }

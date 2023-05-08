@@ -10,6 +10,6 @@ import lombok.Data;
 public class CommentDto {
   @NotNull
   private int rating;
-  @NotNull
+  @NotNull(message = "Comment should be have at least two words")
   private String comments;
 }

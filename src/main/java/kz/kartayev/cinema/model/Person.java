@@ -1,25 +1,24 @@
 package kz.kartayev.cinema.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 
 /**
  * Model class for User in application.
@@ -54,9 +53,11 @@ public class Person {
   private String role;
 
   @Column(name = "password")
+  @NotEmpty(message = "password should be not empty!")
+  @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$")
   private String password;
 
-  @OneToMany(fetch = FetchType.EAGER,mappedBy = "person")
+  @OneToMany(fetch = FetchType.EAGER, mappedBy = "person")
   @JsonIgnore
   private List<Comment> comments;
 
@@ -64,7 +65,7 @@ public class Person {
   @JsonIgnore
   private List<TransactionHistory> transactions;
 
-  @Column(name="wallet")
+  @Column(name = "wallet")
   @Min(value = 0, message = "You not have any money. Please plus some money!")
   private int wallet;
 }
