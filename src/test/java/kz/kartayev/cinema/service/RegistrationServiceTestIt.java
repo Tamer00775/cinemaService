@@ -13,7 +13,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = CinemaCenterApplication.class)
-public class RegistrationServiceTest {
+public class RegistrationServiceTestIt {
   @Autowired
   RegistrationService registrationService;
   @Test

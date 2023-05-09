@@ -57,7 +57,7 @@ public class Person {
   @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$")
   private String password;
 
-  @OneToMany(fetch = FetchType.EAGER, mappedBy = "person")
+  @OneToMany(mappedBy = "person")
   @JsonIgnore
   private List<Comment> comments;
 

@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class CommentService {
   private final CommentRepository commentRepository;
@@ -25,5 +27,9 @@ public class CommentService {
   }
   public void deleteById(int id){
     commentRepository.deleteById(id);
+  }
+
+  public List<Comment> findAll(){
+    return commentRepository.findAll();
   }
 }

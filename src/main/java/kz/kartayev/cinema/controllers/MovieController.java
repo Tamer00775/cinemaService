@@ -2,6 +2,7 @@ package kz.kartayev.cinema.controllers;
 
 import java.util.List;
 import kz.kartayev.cinema.dto.CommentDto;
+import kz.kartayev.cinema.dto.MovieDto;
 import kz.kartayev.cinema.dto.TransactionDto;
 import kz.kartayev.cinema.model.Comment;
 import kz.kartayev.cinema.model.Movie;
@@ -76,6 +77,10 @@ public class MovieController {
   public List<Comment> comments(@PathVariable("id") int id) {
     return movieService.index(id).getComments();
   }
+  @GetMapping("/search")
+  public List<Movie> search(@RequestBody MovieDto movieDto){
+    return movieService.searchMovie(movieDto.getName());
+  }
   @DeleteMapping("/{id}/comment/{comment_id}")
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   public ResponseEntity<HttpStatus> deleteComment(@PathVariable("id") int movieId,
@@ -105,13 +110,10 @@ public class MovieController {
                                                @Valid TransactionDto transactionDto, BindingResult
                                                bindingResult){
     TransactionHistory transactionHistory = toTransaction(transactionDto);
-    transactionHistory.setMovie(index(movie_id));
-    transactionHistory.setCinemaCenter(index(movie_id).getCinemaCenter());
-    transactionHistory.setTotalPrice(transactionDto.getQuantity() * index(movie_id).getPrice());
     transactionValidator.validate(transactionHistory, bindingResult);
     if(bindingResult.hasErrors())
       getFieldErrors(bindingResult);
-    transactionService.buyTicket(transactionHistory);
+    transactionService.buyTicket(transactionHistory, index(movie_id), transactionDto.getQuantity());
     Movie movie = index(movie_id);
     movie.setPlaces(movie.getPlaces() - transactionDto.getQuantity());
     movieService.save(movie);

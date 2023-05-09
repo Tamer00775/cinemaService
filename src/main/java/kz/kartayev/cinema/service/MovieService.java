@@ -3,6 +3,7 @@ package kz.kartayev.cinema.service;
 import kz.kartayev.cinema.model.Comment;
 import kz.kartayev.cinema.model.Movie;
 import kz.kartayev.cinema.repository.MovieRepository;
+import kz.kartayev.cinema.util.ErrorMessage;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -54,5 +55,14 @@ public class MovieService {
     movie.setRaiting((movie.getRaiting() + rating) / (
             (long) movie.getComments().size() - 1
     ));
+  }
+
+  public List<Movie> searchMovie(String prefix){
+    return movieRepository.findByNameStartingWith(prefix);
+  }
+  public Movie getMovieByName(String movieName){
+    if(movieName.split(" ").length > 6)
+      throw new ErrorMessage("Long movie name");
+    return movieRepository.findByName(movieName);
   }
 }

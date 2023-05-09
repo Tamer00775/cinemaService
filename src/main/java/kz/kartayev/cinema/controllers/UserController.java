@@ -1,6 +1,7 @@
 package kz.kartayev.cinema.controllers;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import kz.kartayev.cinema.dto.CardDto;
 import kz.kartayev.cinema.dto.MoneyDto;
@@ -8,6 +9,7 @@ import kz.kartayev.cinema.dto.PersonDto;
 import kz.kartayev.cinema.model.Comment;
 import kz.kartayev.cinema.model.Person;
 import kz.kartayev.cinema.model.TransactionHistory;
+import kz.kartayev.cinema.service.CommentService;
 import kz.kartayev.cinema.service.PersonService;
 import kz.kartayev.cinema.service.TransactionService;
 import kz.kartayev.cinema.util.ErrorMessage;
@@ -41,13 +43,15 @@ public class UserController {
   private final ModelMapper modelMapper;
   private final TransactionService transactionService;
   private final UserValidator userValidator;
+  private final CommentService commentService;
 
   @Autowired
-  public UserController(PersonService personService, ModelMapper modelMapper, TransactionService transactionService, UserValidator userValidator) {
+  public UserController(PersonService personService, ModelMapper modelMapper, TransactionService transactionService, UserValidator userValidator, CommentService commentService) {
     this.personService = personService;
     this.modelMapper = modelMapper;
     this.transactionService = transactionService;
     this.userValidator = userValidator;
+    this.commentService = commentService;
   }
 
   /**
@@ -63,7 +67,8 @@ public class UserController {
    * */
   @GetMapping("/mycomments")
   public List<Comment> myComments() {
-     return personService.getInfo().getComments();
+     return commentService.findAll().stream().filter(a -> a.getPerson().getUserId() == getInfo().getUserId())
+            .collect(Collectors.toList());
   }
   /**
    * Set new money.
@@ -109,8 +114,9 @@ public class UserController {
   @GetMapping("/tickets")
   public List<TransactionHistory> myTickets(){
     Person person = personService.getInfo();
-    Hibernate.initialize(person);
-    return person.getTransactions();
+    return transactionService.findAll()
+            .stream().filter(a -> a.getPerson().getUserId() == person.getUserId())
+            .collect(Collectors.toList());
   }
 
   /**

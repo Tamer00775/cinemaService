@@ -31,6 +31,7 @@ public class TransactionHistory {
   private Date createdAt;
   @ManyToOne
   @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+  @JsonIgnore
   private Person person;
   @ManyToOne
   @JoinColumn(name="movie_id", referencedColumnName = "movie_id")
