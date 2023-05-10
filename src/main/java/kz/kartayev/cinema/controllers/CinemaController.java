@@ -43,6 +43,7 @@ public class CinemaController {
   /**
    * Get all movies from cinema center in tomorrow.
    * */
+  // TODO : FIX THIS METHOD
   @GetMapping("/{id}/tomorrow")
   public List<Movie> tomorrowMovies(@PathVariable("id") int id) {
     Date dt = new Date(System.currentTimeMillis());

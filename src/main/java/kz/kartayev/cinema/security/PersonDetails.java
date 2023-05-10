@@ -3,16 +3,18 @@ package kz.kartayev.cinema.security;
 import java.util.Collection;
 import java.util.Collections;
 import kz.kartayev.cinema.model.Person;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
 
 /**
  * PersonDetails class for security.
  */
+@Component
 public class PersonDetails implements UserDetails {
   private final Person person;
-
   public PersonDetails(Person person) {
     this.person = person;
   }

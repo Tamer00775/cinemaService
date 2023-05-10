@@ -1,5 +1,7 @@
 package kz.kartayev.cinema.controllers;
 
+import static kz.kartayev.cinema.util.ErrorUtil.getFieldErrors;
+
 import javax.validation.Valid;
 import kz.kartayev.cinema.dto.PersonDto;
 import kz.kartayev.cinema.model.Person;
@@ -17,7 +19,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import static kz.kartayev.cinema.util.ErrorUtil.getFieldErrors;
 
 /**
  * Authentication controller for user.
@@ -29,8 +30,12 @@ public class AuthController {
   private final ModelMapper modelMapper;
   private final UserValidator userValidator;
 
+  /**
+   * Authentication controller.
+   * */
   @Autowired
-  public AuthController(RegistrationService registrationService, ModelMapper modelMapper, UserValidator userValidator) {
+  public AuthController(RegistrationService registrationService,
+                        ModelMapper modelMapper, UserValidator userValidator) {
     this.registrationService = registrationService;
     this.modelMapper = modelMapper;
     this.userValidator = userValidator;
@@ -57,6 +62,7 @@ public class AuthController {
   public Person toPerson(PersonDto personDto) {
     return modelMapper.map(personDto, Person.class);
   }
+
   /**
    * Handler for exceptions.
    * */

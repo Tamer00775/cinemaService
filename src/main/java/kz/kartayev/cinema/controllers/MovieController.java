@@ -1,6 +1,9 @@
 package kz.kartayev.cinema.controllers;
 
+import static kz.kartayev.cinema.util.ErrorUtil.getFieldErrors;
+
 import java.util.List;
+import javax.validation.Valid;
 import kz.kartayev.cinema.dto.CommentDto;
 import kz.kartayev.cinema.dto.MovieDto;
 import kz.kartayev.cinema.dto.TransactionDto;
@@ -30,12 +33,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import static kz.kartayev.cinema.util.ErrorUtil.getFieldErrors;
-import javax.validation.Valid;
 
 /**
  * Controller class for Movie.
- * */
+ */
 @RestController
 @RequestMapping("/movies")
 public class MovieController {
@@ -49,10 +50,12 @@ public class MovieController {
 
   /**
    * Movie Controller.
-   * */
+   */
   @Autowired
   public MovieController(MovieService movieService, ModelMapper modelMapper,
-                         PersonService personService, CommentService commentService, TransactionService transactionService, CommentValidator commentValidator, TransactionValidator transactionValidator) {
+                         PersonService personService, CommentService commentService,
+                         TransactionService transactionService, CommentValidator commentValidator,
+                         TransactionValidator transactionValidator) {
     this.movieService = movieService;
     this.modelMapper = modelMapper;
     this.personService = personService;
@@ -64,7 +67,7 @@ public class MovieController {
 
   /**
    * Get description about movie.
-   * */
+   */
   @GetMapping("/{id}")
   public Movie index(@PathVariable("id") int id) {
     return movieService.index(id);
@@ -72,19 +75,24 @@ public class MovieController {
 
   /**
    * Get all comments in movie.
-   * */
+   */
   @GetMapping("/{id}/comment")
   public List<Comment> comments(@PathVariable("id") int id) {
     return movieService.index(id).getComments();
   }
+
+  /**
+   * Search movie with string prefix.
+   */
   @GetMapping("/search")
-  public List<Movie> search(@RequestBody MovieDto movieDto){
+  public List<Movie> search(@RequestBody MovieDto movieDto) {
     return movieService.searchMovie(movieDto.getName());
   }
+
   @DeleteMapping("/{id}/comment/{comment_id}")
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   public ResponseEntity<HttpStatus> deleteComment(@PathVariable("id") int movieId,
-                                                  @PathVariable("comment_id") int commentId){
+                                                  @PathVariable("comment_id") int commentId) {
     movieService.deleteComment(movieId, commentId);
     return ResponseEntity.ok(HttpStatus.OK);
   }
@@ -92,29 +100,35 @@ public class MovieController {
 
   /**
    * Save new comment.
-   * */
+   */
   @PostMapping("/{id}/comment")
-  public ResponseEntity<HttpStatus> saveComment(@PathVariable("id") int movieId, @RequestBody
-                                                @Valid CommentDto commentDto,
+  public ResponseEntity<HttpStatus> saveComment(@PathVariable("id") int movieId,
+                                                @RequestBody @Valid CommentDto commentDto,
                                                 BindingResult bindingResult) {
     Comment comment = toComment(commentDto);
     commentValidator.validate(comment, bindingResult);
-    if(bindingResult.hasErrors())
+    if (bindingResult.hasErrors()) {
       getFieldErrors(bindingResult);
-    movieService.save(movieId, comment) ;
+    }
+    movieService.save(movieId, comment);
     return ResponseEntity.ok(HttpStatus.OK);
   }
-  // FIX TO Business idea to Service;
+
+  //TODO : Business idea to Service;
+  /**
+   * Buy one ticket.
+   * */
   @PostMapping("/{id}/buy")
-  public ResponseEntity<HttpStatus> buyTickets(@PathVariable("id") int movie_id, @RequestBody
-                                               @Valid TransactionDto transactionDto, BindingResult
-                                               bindingResult){
+  public ResponseEntity<HttpStatus> buyTickets(@PathVariable("id") int movieId,
+                                               @RequestBody @Valid TransactionDto transactionDto,
+                                               BindingResult bindingResult) {
     TransactionHistory transactionHistory = toTransaction(transactionDto);
     transactionValidator.validate(transactionHistory, bindingResult);
-    if(bindingResult.hasErrors())
+    if (bindingResult.hasErrors()) {
       getFieldErrors(bindingResult);
-    transactionService.buyTicket(transactionHistory, index(movie_id), transactionDto.getQuantity());
-    Movie movie = index(movie_id);
+    }
+    transactionService.buyTicket(transactionHistory, index(movieId), transactionDto.getQuantity());
+    Movie movie = index(movieId);
     movie.setPlaces(movie.getPlaces() - transactionDto.getQuantity());
     movieService.save(movie);
     Hibernate.initialize(movie);
@@ -124,7 +138,7 @@ public class MovieController {
 
   /**
    * Handler for exceptions.
-   * */
+   */
   @ExceptionHandler
   public ResponseEntity<ErrorResponse> exceptionHandler(ErrorMessage errorMessage) {
     ErrorResponse errorResponse = new ErrorResponse(errorMessage.getMessage(),
@@ -134,12 +148,12 @@ public class MovieController {
 
   /**
    * Transfrom CommentDto to Comment class with Model mapper class.
-   * */
+   */
   public Comment toComment(CommentDto commentDto) {
     return modelMapper.map(commentDto, Comment.class);
   }
 
-  public TransactionHistory toTransaction(TransactionDto transactionDto){
+  public TransactionHistory toTransaction(TransactionDto transactionDto) {
     return modelMapper.map(transactionDto, TransactionHistory.class);
   }
 }

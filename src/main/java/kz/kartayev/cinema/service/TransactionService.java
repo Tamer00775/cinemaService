@@ -21,8 +21,8 @@ public class TransactionService {
     this.transactionRepository = transactionRepository;
     this.personService = personService;
   }
-  public List<TransactionHistory> findAll(){
-    return transactionRepository.findAll();
+  public List<TransactionHistory> findAll(Person person){
+    return transactionRepository.findByPerson(person);
   }
   // TODO:Why transaction is not working?
   @Transactional

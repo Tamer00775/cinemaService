@@ -1,5 +1,7 @@
 package kz.kartayev.cinema.controllers;
 
+import static kz.kartayev.cinema.util.ErrorUtil.getFieldErrors;
+
 import java.util.List;
 import javax.validation.Valid;
 import kz.kartayev.cinema.dto.CinemaDto;
@@ -22,7 +24,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import static kz.kartayev.cinema.util.ErrorUtil.getFieldErrors;
+
+/**
+ * Controller for admin.
+ * */
 @RestController
 @RequestMapping("/admin")
 public class AdminController {
@@ -30,48 +35,80 @@ public class AdminController {
   private final CinemaService cinemaService;
   private final ModelMapper modelMapper;
   private final MovieService movieService;
+
+  /**
+   * Admin controller.
+   * */
   @Autowired
-  public AdminController(PersonService personService, CinemaService cinemaService, ModelMapper modelMapper, MovieService movieService) {
+  public AdminController(PersonService personService,
+                         CinemaService cinemaService, ModelMapper modelMapper,
+                         MovieService movieService) {
     this.personService = personService;
     this.cinemaService = cinemaService;
     this.modelMapper = modelMapper;
     this.movieService = movieService;
   }
+
+  /**
+   * Get all user in system.
+   * */
   @GetMapping
-  public List<Person> allUser(){
+  public List<Person> allUser() {
     return personService.findAll();
   }
+
+  /**
+   * Get user by id.
+   * */
   @GetMapping("/user/{id}")
   public Person getUser(@PathVariable("id") int userId) throws Exception {
     return personService.show(userId);
   }
+
+  /**
+   * Delete user by id.
+   * */
   @DeleteMapping("/user/{id}/delete")
-  public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") int userId){
+  public ResponseEntity<HttpStatus> deleteUser(@PathVariable("id") int userId) {
     personService.delete(userId);
     return ResponseEntity.ok(HttpStatus.ACCEPTED);
   }
+
+  /**
+   * manage admin access in system.
+   * */
   @PostMapping("/user/{id}/manage")
-  public ResponseEntity<HttpStatus> manageAccessToAdmin(@PathVariable("id") int userId) throws Exception {
+  public ResponseEntity<HttpStatus> manageAccessToAdmin(@PathVariable("id")
+                                                          int userId) throws Exception {
     Person person = personService.show(userId);
     person.setRole("ROLE_ADMIN");
     personService.save(person);
     return ResponseEntity.ok(HttpStatus.ACCEPTED);
   }
+
+  /**
+   * Adding new cinema center.
+   * */
   @PostMapping("/cinema/add")
   public ResponseEntity<HttpStatus> addCinemaCenter(@RequestBody @Valid CinemaDto cinemaDto,
-                                                    BindingResult bindingResult){
-    if(bindingResult.hasErrors())
+                                                    BindingResult bindingResult) {
+    if (bindingResult.hasErrors()) {
       getFieldErrors(bindingResult);
+    }
     CinemaCenter cinemaCenter = toCinema(cinemaDto);
     cinemaService.saveCinemaCenter(cinemaCenter);
     return ResponseEntity.ok(HttpStatus.ACCEPTED);
   }
+
+  /**
+   * Add new movie.
+   * */
   @PostMapping("/cinema/{id}/add")
-  public ResponseEntity<HttpStatus> addMovie(@PathVariable("id") int cinema_id,
-                                             @RequestBody MovieDto movieDto){
+  public ResponseEntity<HttpStatus> addMovie(@PathVariable("id") int cinemaId,
+                                             @RequestBody MovieDto movieDto) {
     System.out.println(movieDto);
     Movie movie = toMovie(movieDto);
-    movie.setCinemaCenter(cinemaService.index(cinema_id));
+    movie.setCinemaCenter(cinemaService.index(cinemaId));
     movie.setPlaces(30);
     movie.setRaiting(5.0);
     movie.setPrice(3000);
@@ -79,10 +116,17 @@ public class AdminController {
     return ResponseEntity.ok(HttpStatus.OK);
   }
 
-  private Movie toMovie(MovieDto movieDto){
+  /**
+   * Transform to Movie from MovieDto.
+   * */
+  private Movie toMovie(MovieDto movieDto) {
     return modelMapper.map(movieDto, Movie.class);
   }
-  private CinemaCenter toCinema(CinemaDto cinemaDto){
+
+  /**
+   * Transform to CinemaCenter from CinemaCenterDto.
+   * */
+  private CinemaCenter toCinema(CinemaDto cinemaDto) {
     return modelMapper.map(cinemaDto, CinemaCenter.class);
   }
 }

@@ -56,5 +56,6 @@ public class Movie {
   @JsonIgnore
   private CinemaCenter cinemaCenter;
   @OneToMany(mappedBy = "movie")
+  @JsonIgnore
   List<Comment> comments;
 }

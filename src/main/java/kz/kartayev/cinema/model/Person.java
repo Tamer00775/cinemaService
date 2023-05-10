@@ -32,6 +32,7 @@ public class Person {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "user_id")
+  @JsonIgnore
   private int userId;
 
   @Column(name = "username")
@@ -45,7 +46,6 @@ public class Person {
   private int age;
 
   @Column(name = "card")
-  @Size(min = 16, max = 16)
   private String card;
 
   @Column(name = "role")
@@ -55,6 +55,7 @@ public class Person {
   @Column(name = "password")
   @NotEmpty(message = "password should be not empty!")
   @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).+$")
+  @JsonIgnore
   private String password;
 
   @OneToMany(mappedBy = "person")
