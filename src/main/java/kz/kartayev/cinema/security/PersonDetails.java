@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 /**
  * PersonDetails class for security.
  */
-@Component
 public class PersonDetails implements UserDetails {
   private final Person person;
   public PersonDetails(Person person) {
