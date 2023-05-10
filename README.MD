@@ -25,5 +25,3 @@ today and tomorrow. This application run with one command.
 # CODE
 `docker pull postgres:11.6`
 
-`docker run --name cinema_center_db -p 5432:5432 -e POSTGRES_PASSWORD=blabla -d postgres:11.6`
-
