@@ -11,6 +11,7 @@ import kz.kartayev.cinema.model.Comment;
 import kz.kartayev.cinema.model.Movie;
 import kz.kartayev.cinema.model.TransactionHistory;
 import kz.kartayev.cinema.service.CommentService;
+import kz.kartayev.cinema.service.MailSender;
 import kz.kartayev.cinema.service.MovieService;
 import kz.kartayev.cinema.service.PersonService;
 import kz.kartayev.cinema.service.TransactionService;
@@ -18,7 +19,6 @@ import kz.kartayev.cinema.util.CommentValidator;
 import kz.kartayev.cinema.util.ErrorMessage;
 import kz.kartayev.cinema.util.ErrorResponse;
 import kz.kartayev.cinema.util.TransactionValidator;
-import org.hibernate.Hibernate;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -131,8 +131,7 @@ public class MovieController {
     Movie movie = index(movieId);
     movie.setPlaces(movie.getPlaces() - transactionDto.getQuantity());
     movieService.save(movie);
-    Hibernate.initialize(movie);
-    Hibernate.initialize(transactionHistory);
+
     return ResponseEntity.ok(HttpStatus.OK);
   }
 

@@ -4,6 +4,7 @@ import javax.persistence.Column;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 import lombok.Data;
 
@@ -14,6 +15,7 @@ import lombok.Data;
 public class PersonDto {
   @Size(min = 2, max = 30, message = "Your name must be in range 2 and 30 characters")
   @NotEmpty
+  @Pattern(regexp = "^[A-z]*[0-9]*@(gmail|yandex|mail)\\.(com|ru)$", message = "Ex: some@gmail.com")
   private String username;
 
   @Min(value = 18, message = "You must under 18 age")

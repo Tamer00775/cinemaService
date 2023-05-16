@@ -1,5 +1,8 @@
 package kz.kartayev.cinema.service;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 import kz.kartayev.cinema.model.Comment;
 import kz.kartayev.cinema.model.Movie;
 import kz.kartayev.cinema.repository.MovieRepository;
@@ -9,9 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class MovieService {

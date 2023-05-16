@@ -3,7 +3,6 @@ package kz.kartayev.cinema.dto;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
 import java.util.Date;
 
 

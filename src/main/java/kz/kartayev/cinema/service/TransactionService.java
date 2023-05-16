@@ -4,7 +4,6 @@ import kz.kartayev.cinema.model.Movie;
 import kz.kartayev.cinema.model.Person;
 import kz.kartayev.cinema.model.TransactionHistory;
 import kz.kartayev.cinema.repository.TransactionRepository;
-import kz.kartayev.cinema.util.ErrorMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,10 +15,12 @@ import java.util.List;
 public class TransactionService {
   private final TransactionRepository transactionRepository;
   private final PersonService personService;
+  private final MailSender mailSender;
   @Autowired
-  public TransactionService(TransactionRepository transactionRepository, PersonService personService) {
+  public TransactionService(TransactionRepository transactionRepository, PersonService personService, MailSender mailSender) {
     this.transactionRepository = transactionRepository;
     this.personService = personService;
+    this.mailSender = mailSender;
   }
   public List<TransactionHistory> findAll(Person person){
     return transactionRepository.findByPerson(person);
@@ -32,13 +33,12 @@ public class TransactionService {
     history.setMovie(movie);
     history.setCinemaCenter(movie.getCinemaCenter());
     history.setTotalPrice(quantity * movie.getPrice());
-   // if(person.getWallet() < history.getTotalPrice())
-   //   throw new ErrorMessage("You dont have money to pay this transaction");
-   // if(person.getCard().isEmpty())
-   //   throw new ErrorMessage("You dont have card. Add card!");
     person.setWallet(person.getWallet() - history.getTotalPrice());
     personService.save(person);
     history.setPerson(person);
     transactionRepository.save(history);
+    String message = "Hello! You have " + quantity + " ticket for "
+            + movie.getName() + "at " + movie.getStartDate() + ". Good luck!";
+    mailSender.send(person.getUsername(), "ticket", message);
   }
 }

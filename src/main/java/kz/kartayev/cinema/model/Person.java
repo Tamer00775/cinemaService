@@ -36,6 +36,7 @@ public class Person {
   @Column(name = "username")
   @Size(min = 2, max = 30, message = "Your name must be in range 2 and 30 characters")
   @NotEmpty
+  @Pattern(regexp = "^[A-z]*[0-9]*@(gmail|yandex|mail)\\.(com|ru)$", message = "Ex: some@gmail.com")
   private String username;
 
   @Column(name = "age")

@@ -1,8 +1,9 @@
   services:
     db:
-      image: postgres:11.6
+      image: local-postgres:11.6
       restart: always
       environment:
+        user: postgres
         POSTGRES_DB: postgres
         POSTGRES_USER: postgres
         POSTGRES_PASSWORD: postgres
@@ -15,7 +16,7 @@
         timeout: 5s
         retries: 5
       volumes:
-        - ../2. Init Database:/docker-entrypoint-initdb.d
+        -  ./1_init.sql:/docker-entrypoint-initdb.d/init.sql
         - .:/var/lib/postgresql/data
     api:
       build: .
