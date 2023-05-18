@@ -8,6 +8,7 @@ today and tomorrow. This application run with one command.
 # Technologies
 - Java 8, 11 
 - Spring Framework (Security, Data JPA, REST)
+- Spring Mail Sender
 - Postgresql 11.6
 - JUnit
 - Mockito 

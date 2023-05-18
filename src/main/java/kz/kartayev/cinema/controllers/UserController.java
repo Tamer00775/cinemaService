@@ -117,13 +117,12 @@ public class UserController {
     return ResponseEntity.ok(HttpStatus.OK);
   }
 
-  //TODO:  FIX ME
   /**
    * Get my tickets.
    * */
   @GetMapping("/tickets")
   public List<TransactionHistory> myTickets() {
-    return transactionService.findAll(getInfo());
+    return transactionService.getTicketsByPerson(personService.getInfo());
   }
 
   /**

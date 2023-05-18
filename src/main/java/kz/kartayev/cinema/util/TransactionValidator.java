@@ -1,5 +1,6 @@
 package kz.kartayev.cinema.util;
 
+import kz.kartayev.cinema.model.Movie;
 import kz.kartayev.cinema.model.TransactionHistory;
 import kz.kartayev.cinema.service.PersonService;
 import org.springframework.stereotype.Component;
@@ -29,5 +30,6 @@ public class TransactionValidator implements Validator {
       errors.rejectValue("wallet", "", "You must have "
       + transactionHistory.getTotalPrice() + "KZT in your wallet. Please add some money"
               + " to your wallet, if you want buy ticket.");
+    // Movie movie = transactionHistory.getMovie();
   }
 }

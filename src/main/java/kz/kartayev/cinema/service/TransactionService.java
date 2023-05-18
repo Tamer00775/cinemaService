@@ -25,7 +25,6 @@ public class TransactionService {
   public List<TransactionHistory> findAll(Person person){
     return transactionRepository.findByPerson(person);
   }
-  // TODO:Why transaction is not working?
   @Transactional
   public void buyTicket(TransactionHistory history, Movie movie, int quantity){
     history.setCreatedAt(new Date());
@@ -38,7 +37,12 @@ public class TransactionService {
     history.setPerson(person);
     transactionRepository.save(history);
     String message = "Hello! You have " + quantity + " ticket for "
-            + movie.getName() + "at " + movie.getStartDate() + ". Good luck!";
+            + movie.getName() + " at " + movie.getStartDate() + ". Good luck!";
     mailSender.send(person.getUsername(), "ticket", message);
+  }
+
+  public List<TransactionHistory> getTicketsByPerson(Person person){
+    // return transactionRepository.getTransactionHistoriesByPerson(person.getUsername());
+    return transactionRepository.getTransactionHistoriesByPerson(person);
   }
 }

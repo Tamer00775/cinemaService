@@ -9,15 +9,19 @@ import kz.kartayev.cinema.dto.MovieDto;
 import kz.kartayev.cinema.model.CinemaCenter;
 import kz.kartayev.cinema.model.Movie;
 import kz.kartayev.cinema.model.Person;
+import kz.kartayev.cinema.service.AdminService;
 import kz.kartayev.cinema.service.CinemaService;
-import kz.kartayev.cinema.service.MovieService;
 import kz.kartayev.cinema.service.PersonService;
+import kz.kartayev.cinema.util.ErrorMessage;
+import kz.kartayev.cinema.util.ErrorResponse;
+import kz.kartayev.cinema.util.MovieValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,21 +36,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/admin")
 public class AdminController {
   private final PersonService personService;
-  private final CinemaService cinemaService;
   private final ModelMapper modelMapper;
-  private final MovieService movieService;
+  private final MovieValidator movieValidator;
+  private final AdminService adminService;
 
   /**
    * Admin controller.
    * */
   @Autowired
   public AdminController(PersonService personService,
-                         CinemaService cinemaService, ModelMapper modelMapper,
-                         MovieService movieService) {
+                         ModelMapper modelMapper,
+                         MovieValidator movieValidator, AdminService adminService) {
     this.personService = personService;
-    this.cinemaService = cinemaService;
     this.modelMapper = modelMapper;
-    this.movieService = movieService;
+    this.movieValidator = movieValidator;
+    this.adminService = adminService;
   }
 
   /**
@@ -96,24 +100,34 @@ public class AdminController {
       getFieldErrors(bindingResult);
     }
     CinemaCenter cinemaCenter = toCinema(cinemaDto);
-    cinemaService.saveCinemaCenter(cinemaCenter);
+    adminService.saveCinema(cinemaCenter);
     return ResponseEntity.ok(HttpStatus.ACCEPTED);
   }
 
+  // TODO : ADD EXCEPTION HANDLER
   /**
    * Add new movie.
    * */
   @PostMapping("/cinema/{id}/add")
   public ResponseEntity<HttpStatus> addMovie(@PathVariable("id") int cinemaId,
-                                             @RequestBody MovieDto movieDto) {
-    System.out.println(movieDto);
+                                             @RequestBody @Valid MovieDto movieDto,
+                                             BindingResult bindingResult) {
     Movie movie = toMovie(movieDto);
-    movie.setCinemaCenter(cinemaService.index(cinemaId));
-    movie.setPlaces(30);
-    movie.setRaiting(5.0);
-    movie.setPrice(3000);
-    movieService.save(movie);
+    movieValidator.validate(movie, bindingResult);
+    if(bindingResult.hasErrors()){
+      getFieldErrors(bindingResult);
+    }
+    adminService.saveMovie(movie, cinemaId);
     return ResponseEntity.ok(HttpStatus.OK);
+  }
+  /**
+   * Handler for exceptions.
+   * */
+  @ExceptionHandler
+  public ResponseEntity<ErrorResponse> exceptionHandler(ErrorMessage errorMessage) {
+    ErrorResponse errorResponse = new ErrorResponse(errorMessage.getMessage(),
+            System.currentTimeMillis());
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
   }
 
   /**
