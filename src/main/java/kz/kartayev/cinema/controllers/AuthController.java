@@ -3,8 +3,11 @@ package kz.kartayev.cinema.controllers;
 import static kz.kartayev.cinema.util.ErrorUtil.getFieldErrors;
 
 import javax.validation.Valid;
+
+import kz.kartayev.cinema.dto.AuthenticationDTO;
 import kz.kartayev.cinema.dto.PersonDto;
 import kz.kartayev.cinema.model.Person;
+import kz.kartayev.cinema.security.JWTUtil;
 import kz.kartayev.cinema.service.RegistrationService;
 import kz.kartayev.cinema.util.ErrorMessage;
 import kz.kartayev.cinema.util.ErrorResponse;
@@ -13,32 +16,41 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Map;
 
 /**
  * Authentication controller for user.
  */
-@Controller
+@RestController
 @RequestMapping("/auth")
 public class AuthController {
   private final RegistrationService registrationService;
   private final ModelMapper modelMapper;
   private final UserValidator userValidator;
+  private final AuthenticationManager authenticationManager;
+  private final JWTUtil jwtUtil;
 
   /**
    * Authentication controller.
    * */
   @Autowired
   public AuthController(RegistrationService registrationService,
-                        ModelMapper modelMapper, UserValidator userValidator) {
+                        ModelMapper modelMapper, UserValidator userValidator, AuthenticationManager authenticationManager, JWTUtil jwtUtil) {
     this.registrationService = registrationService;
     this.modelMapper = modelMapper;
     this.userValidator = userValidator;
+    this.authenticationManager = authenticationManager;
+    this.jwtUtil = jwtUtil;
   }
 
   /**
@@ -55,6 +67,25 @@ public class AuthController {
     return ResponseEntity.ok(HttpStatus.ACCEPTED);
   }
 
+  /**
+   * Login to system.
+   * */
+  @PostMapping("/login")
+  public Map<String, String> login(@RequestBody AuthenticationDTO authenticationDTO, BindingResult bindingResult){
+    if(bindingResult.hasErrors()){
+      getFieldErrors(bindingResult);
+    }
+    UsernamePasswordAuthenticationToken authInputToken =
+            new UsernamePasswordAuthenticationToken(authenticationDTO.getUsername(),
+                    authenticationDTO.getPassword());
+    try {
+      authenticationManager.authenticate(authInputToken);
+    } catch (BadCredentialsException e) {
+      return Map.of("message", "incorrect credentials!");
+    }
+    String token = jwtUtil.generateToken(authenticationDTO.getUsername());
+    return Map.of("jwt-token",token);
+  }
 
   /**
    * Mapping from PersonDto to Person.

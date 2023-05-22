@@ -2,7 +2,6 @@ package kz.kartayev.cinema.service;
 
 import kz.kartayev.cinema.CinemaCenterApplication;
 import kz.kartayev.cinema.model.Movie;
-import kz.kartayev.cinema.util.ErrorMessage;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;

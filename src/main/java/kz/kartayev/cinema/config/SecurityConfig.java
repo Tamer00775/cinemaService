@@ -9,59 +9,64 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
  * Security Configuration for Cinema Center Application.
  * */
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
-public class SecurityConfig {
+public class SecurityConfig extends WebSecurityConfigurerAdapter {
   private final PersonDetailsService personDetailsService;
+  private final JWTFilter jwtFilter;
 
   @Autowired
-  public SecurityConfig(PersonDetailsService personDetailsService) {
+  public SecurityConfig(PersonDetailsService personDetailsService, JWTFilter jwtFilter) {
     this.personDetailsService = personDetailsService;
+    this.jwtFilter = jwtFilter;
   }
 
 
   /**
    * Configuration in system.
    */
-  @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-    return http.httpBasic().and()
+  @Override
+  protected void configure (HttpSecurity http) throws Exception {
+    http.httpBasic().and()
             .csrf().disable()
             .authorizeRequests()
             .antMatchers(HttpMethod.POST, "/auth/registration").permitAll()
+            .antMatchers(HttpMethod.POST, "/auth/login").permitAll()
             .antMatchers("/admin/**").hasRole("ADMIN")
             .anyRequest().hasAnyRole("USER", "ADMIN")
             .and()
             .formLogin().disable()
-            .build();
+            .sessionManagement()
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+    http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
   }
 
   /**
    * Authentication in system.
    * */
-  @Bean
-  public AuthenticationManager authManager(HttpSecurity http) throws Exception {
-    return http.getSharedObject(AuthenticationManagerBuilder.class)
-            .userDetailsService(personDetailsService)
-            // при аутентификации Spring Security будет автоматически прогонять через
-            // BCryptPasswordEncoder
-            .passwordEncoder(getPasswordEncoder())
-            .and()
-            .build();
+  protected void configure(AuthenticationManagerBuilder auth) throws Exception {
+    auth.userDetailsService(personDetailsService)
+            .passwordEncoder(getPasswordEncoder());
   }
-
   /**
    * Bean for encode password with encoder classes.
    * */
   @Bean
   public PasswordEncoder getPasswordEncoder() {
     return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+  }
+  @Bean
+  @Override
+  public AuthenticationManager authenticationManagerBean() throws Exception {
+    return super.authenticationManagerBean();
   }
 }
