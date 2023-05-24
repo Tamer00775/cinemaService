@@ -71,7 +71,8 @@ public class AuthController {
    * Login to system.
    * */
   @PostMapping("/login")
-  public Map<String, String> login(@RequestBody AuthenticationDTO authenticationDTO, BindingResult bindingResult){
+  public Map<String, String> login(@RequestBody AuthenticationDTO authenticationDTO,
+                                   BindingResult bindingResult){
     if(bindingResult.hasErrors()){
       getFieldErrors(bindingResult);
     }

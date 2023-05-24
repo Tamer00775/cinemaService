@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.Date;
 
 @Entity
@@ -41,5 +42,7 @@ public class TransactionHistory {
   @JoinColumn(name="cinema_id", referencedColumnName = "cinema_center_id")
   @JsonIgnore
   private CinemaCenter cinemaCenter;
-
+  @Transient
+  @JsonIgnore
+  private int[] reserved;
 }

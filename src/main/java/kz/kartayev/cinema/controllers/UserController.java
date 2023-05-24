@@ -5,6 +5,8 @@ import static kz.kartayev.cinema.util.ErrorUtil.getFieldErrors;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
+
+import kz.kartayev.cinema.dto.AuthenticationDTO;
 import kz.kartayev.cinema.dto.CardDto;
 import kz.kartayev.cinema.dto.MoneyDto;
 import kz.kartayev.cinema.dto.PersonDto;
@@ -100,6 +102,12 @@ public class UserController {
     person.setCard("");
     personService.save(person);
     return ResponseEntity.ok(HttpStatus.ACCEPTED);
+  }
+
+  @PostMapping("/password")
+  public ResponseEntity<HttpStatus> changeMyPassword(@RequestBody AuthenticationDTO authenticationDTO){
+    personService.changePassword(getInfo(), authenticationDTO.getPassword());
+    return ResponseEntity.ok(HttpStatus.OK);
   }
 
   /**

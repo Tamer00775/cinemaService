@@ -50,6 +50,12 @@ public class PersonService {
     PersonDetails personDetails = (PersonDetails) authentication.getPrincipal();
     return personDetails.getPerson();
   }
+
+  @Transactional
+  public void changePassword(Person person, String newPassword) {
+    person.setPassword(newPassword);
+    personRepository.save(person);
+  }
   @Transactional
   @PreAuthorize("hasRole('ROLE_ADMIN')")
   public void delete(int personId){

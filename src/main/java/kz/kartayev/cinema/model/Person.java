@@ -66,6 +66,6 @@ public class Person {
   private List<TransactionHistory> transactions;
 
   @Column(name = "wallet")
-  @Min(value = 0, message = "You not have any money. Please plus some money!")
+  @Min(value = 0, message = "You've run out of money. Please replenish your balance!!")
   private int wallet;
 }

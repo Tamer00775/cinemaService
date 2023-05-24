@@ -11,7 +11,9 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -60,4 +62,8 @@ public class Movie {
   @OneToMany(mappedBy = "movie")
   @JsonIgnore
   List<Comment> comments;
+  @OneToOne
+  @JsonIgnore
+  @Transient
+  private Seats seats;
 }

@@ -33,7 +33,6 @@ public class CinemaService {
   /**
    * Get all movie in cinema center id.
    * */
-  // TODO: Исправить гет метод.
   public List<Movie> movie(int id) {
     return cinemaRepository.findById(id).get().getMovieList();
   }
@@ -42,9 +41,9 @@ public class CinemaService {
    * Get all movies in today.
    * */
   public List<Movie> schedule(int id, Date date) {
-    List<Movie> movies = movie(id);
+    List<Movie> movies = cinemaRepository.findById(id).get().getMovieList();
     if (!movies.isEmpty()) {
-      movies = movies.stream().filter(a -> a.getStartDate().getDay() == date.getDay())
+      movies = movies.stream().filter(a -> date.before(a.getStartDate()))
               .collect(Collectors.toList());
     }
     return movies;

@@ -2,12 +2,19 @@ package kz.kartayev.cinema.service;
 
 import kz.kartayev.cinema.model.Movie;
 import kz.kartayev.cinema.model.Person;
+import kz.kartayev.cinema.model.Seats;
 import kz.kartayev.cinema.model.TransactionHistory;
 import kz.kartayev.cinema.repository.TransactionRepository;
+import kz.kartayev.cinema.util.ErrorMessage;
+import kz.kartayev.cinema.util.ErrorResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -16,33 +23,62 @@ public class TransactionService {
   private final TransactionRepository transactionRepository;
   private final PersonService personService;
   private final MailSender mailSender;
+  private final MovieService movieService;
+  private final SeatsService seatsService;
   @Autowired
-  public TransactionService(TransactionRepository transactionRepository, PersonService personService, MailSender mailSender) {
+  public TransactionService(TransactionRepository transactionRepository,
+                            PersonService personService,
+                            MailSender mailSender, MovieService movieService, SeatsService seatsService) {
     this.transactionRepository = transactionRepository;
     this.personService = personService;
     this.mailSender = mailSender;
+    this.movieService = movieService;
+    this.seatsService = seatsService;
   }
   public List<TransactionHistory> findAll(Person person){
     return transactionRepository.findByPerson(person);
   }
   @Transactional
-  public void buyTicket(TransactionHistory history, Movie movie, int quantity){
-    history.setCreatedAt(new Date());
+  public void buyTicket(Movie movie, int[] reserve, TransactionHistory history){
     Person person = personService.getInfo();
-    history.setMovie(movie);
+    System.out.println("ARRAY: " + Arrays.toString(reserve));
+    history.setCreatedAt(new Date());
     history.setCinemaCenter(movie.getCinemaCenter());
-    history.setTotalPrice(quantity * movie.getPrice());
+    history.setPerson(person);
+
+    int totalPrice = 0;
+    for(int i : reserve) {
+      Seats seats = seatsService.findById(i);
+      seats.setReserved(true);
+      totalPrice += seats.getPrice();
+      seatsService.save(seats);
+    }
+
+    history.setTotalPrice(totalPrice); // FIX
+    movie.setPlaces(movie.getPlaces() - reserve.length);
+
+    movieService.save(movie);
+    transactionRepository.save(history);
     person.setWallet(person.getWallet() - history.getTotalPrice());
     personService.save(person);
-    history.setPerson(person);
-    transactionRepository.save(history);
-    String message = "Hello! You have " + quantity + " ticket for "
+
+    String message = "Hello! You have " + Arrays.toString(reserve) + " ticket's for "
             + movie.getName() + " at " + movie.getStartDate() + ". Good luck!";
-    mailSender.send(person.getUsername(), "ticket", message);
+    mailSender.send(person.getUsername(), "Tamerlan Cinema Center", message);
   }
 
   public List<TransactionHistory> getTicketsByPerson(Person person){
     // return transactionRepository.getTransactionHistoriesByPerson(person.getUsername());
     return transactionRepository.getTransactionHistoriesByPerson(person);
   }
+  /**
+   * Handler for exceptions.
+   */
+  @ExceptionHandler
+  public ResponseEntity<ErrorResponse> exceptionHandler(ErrorMessage errorMessage) {
+    ErrorResponse errorResponse = new ErrorResponse(errorMessage.getMessage(),
+            System.currentTimeMillis());
+    return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+  }
+
 }

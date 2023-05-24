@@ -2,6 +2,7 @@ package kz.kartayev.cinema.controllers;
 
 import static kz.kartayev.cinema.util.ErrorUtil.getFieldErrors;
 
+import java.util.Arrays;
 import java.util.List;
 import javax.validation.Valid;
 import kz.kartayev.cinema.dto.CommentDto;
@@ -9,11 +10,9 @@ import kz.kartayev.cinema.dto.MovieDto;
 import kz.kartayev.cinema.dto.TransactionDto;
 import kz.kartayev.cinema.model.Comment;
 import kz.kartayev.cinema.model.Movie;
+import kz.kartayev.cinema.model.Person;
 import kz.kartayev.cinema.model.TransactionHistory;
-import kz.kartayev.cinema.service.CommentService;
-import kz.kartayev.cinema.service.MailSender;
 import kz.kartayev.cinema.service.MovieService;
-import kz.kartayev.cinema.service.PersonService;
 import kz.kartayev.cinema.service.TransactionService;
 import kz.kartayev.cinema.util.CommentValidator;
 import kz.kartayev.cinema.util.ErrorMessage;
@@ -42,8 +41,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class MovieController {
   private final MovieService movieService;
   private final ModelMapper modelMapper;
-  private final PersonService personService;
-  private final CommentService commentService;
   private final TransactionService transactionService;
   private final CommentValidator commentValidator;
   private final TransactionValidator transactionValidator;
@@ -53,13 +50,9 @@ public class MovieController {
    */
   @Autowired
   public MovieController(MovieService movieService, ModelMapper modelMapper,
-                         PersonService personService, CommentService commentService,
-                         TransactionService transactionService, CommentValidator commentValidator,
-                         TransactionValidator transactionValidator) {
+                         TransactionService transactionService, CommentValidator commentValidator, TransactionValidator transactionValidator) {
     this.movieService = movieService;
     this.modelMapper = modelMapper;
-    this.personService = personService;
-    this.commentService = commentService;
     this.transactionService = transactionService;
     this.commentValidator = commentValidator;
     this.transactionValidator = transactionValidator;
@@ -123,15 +116,13 @@ public class MovieController {
                                                @RequestBody @Valid TransactionDto transactionDto,
                                                BindingResult bindingResult) {
     TransactionHistory transactionHistory = toTransaction(transactionDto);
+    Movie movie = index(movieId);
+    transactionHistory.setMovie(movie);
     transactionValidator.validate(transactionHistory, bindingResult);
     if (bindingResult.hasErrors()) {
       getFieldErrors(bindingResult);
     }
-    transactionService.buyTicket(transactionHistory, index(movieId), transactionDto.getQuantity());
-    Movie movie = index(movieId);
-    movie.setPlaces(movie.getPlaces() - transactionDto.getQuantity());
-    movieService.save(movie);
-
+    transactionService.buyTicket(movie, transactionDto.getReserved(), transactionHistory);
     return ResponseEntity.ok(HttpStatus.OK);
   }
 
