@@ -9,6 +9,7 @@ today and tomorrow. This application run with one command.
 - Java 8, 11 
 - Spring Framework (Security, Data JPA, REST)
 - Spring Mail Sender
+- JSON Web Token (JWT)
 - Postgresql 11.6
 - JUnit
 - Mockito 
