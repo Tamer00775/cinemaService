@@ -26,15 +26,7 @@ public class TransactionValidator implements Validator {
  // TODO : FIX ME
   @Override
   public void validate(Object target, Errors errors) {
-    TransactionHistory transactionHistory = (TransactionHistory) target;
-    Movie movie = transactionHistory.getMovie();
-    int[] willReserve = transactionHistory.getReserved();
-    for(int i : willReserve) {
-      if(seatsService.findById(i).isReserved()) {
-        errors.rejectValue("reserved", "", "This places " + i + " already "
-                + "reserved! Please take another place.");
 
-      }
-    }
+
   }
 }

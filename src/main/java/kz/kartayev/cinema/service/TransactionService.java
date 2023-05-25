@@ -3,6 +3,7 @@ package kz.kartayev.cinema.service;
 import kz.kartayev.cinema.model.Movie;
 import kz.kartayev.cinema.model.Person;
 import kz.kartayev.cinema.model.Seats;
+import kz.kartayev.cinema.model.Tickets;
 import kz.kartayev.cinema.model.TransactionHistory;
 import kz.kartayev.cinema.repository.TransactionRepository;
 import kz.kartayev.cinema.util.ErrorMessage;
@@ -25,19 +26,22 @@ public class TransactionService {
   private final MailSender mailSender;
   private final MovieService movieService;
   private final SeatsService seatsService;
+  private final TicketService ticketService;
   @Autowired
   public TransactionService(TransactionRepository transactionRepository,
                             PersonService personService,
-                            MailSender mailSender, MovieService movieService, SeatsService seatsService) {
+                            MailSender mailSender, MovieService movieService, SeatsService seatsService, TicketService ticketService) {
     this.transactionRepository = transactionRepository;
     this.personService = personService;
     this.mailSender = mailSender;
     this.movieService = movieService;
     this.seatsService = seatsService;
+    this.ticketService = ticketService;
   }
   public List<TransactionHistory> findAll(Person person){
     return transactionRepository.findByPerson(person);
   }
+   // TODO : Add validation for buying movie which already finished.
   @Transactional
   public void buyTicket(Movie movie, int[] reserve, TransactionHistory history){
     Person person = personService.getInfo();
@@ -45,13 +49,17 @@ public class TransactionService {
     history.setCreatedAt(new Date());
     history.setCinemaCenter(movie.getCinemaCenter());
     history.setPerson(person);
-
     int totalPrice = 0;
+
     for(int i : reserve) {
+      Tickets tickets = new Tickets() ;
+      tickets.setMovie(movie);
       Seats seats = seatsService.findById(i);
-      seats.setReserved(true);
       totalPrice += seats.getPrice();
-      seatsService.save(seats);
+      tickets.setSeats(seats);
+      tickets.setDate(new Date());
+      tickets.setPerson(person);
+      ticketService.save(tickets);
     }
 
     history.setTotalPrice(totalPrice); // FIX
@@ -59,6 +67,7 @@ public class TransactionService {
 
     movieService.save(movie);
     transactionRepository.save(history);
+
     person.setWallet(person.getWallet() - history.getTotalPrice());
     personService.save(person);
 

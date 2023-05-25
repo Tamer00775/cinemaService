@@ -62,8 +62,4 @@ public class Movie {
   @OneToMany(mappedBy = "movie")
   @JsonIgnore
   List<Comment> comments;
-  @OneToOne
-  @JsonIgnore
-  @Transient
-  private Seats seats;
 }

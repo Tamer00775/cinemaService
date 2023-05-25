@@ -12,9 +12,11 @@ import kz.kartayev.cinema.dto.MoneyDto;
 import kz.kartayev.cinema.dto.PersonDto;
 import kz.kartayev.cinema.model.Comment;
 import kz.kartayev.cinema.model.Person;
+import kz.kartayev.cinema.model.Tickets;
 import kz.kartayev.cinema.model.TransactionHistory;
 import kz.kartayev.cinema.service.CommentService;
 import kz.kartayev.cinema.service.PersonService;
+import kz.kartayev.cinema.service.TicketService;
 import kz.kartayev.cinema.service.TransactionService;
 import kz.kartayev.cinema.util.ErrorMessage;
 import kz.kartayev.cinema.util.ErrorResponse;
@@ -43,6 +45,7 @@ public class UserController {
   private final TransactionService transactionService;
   private final UserValidator userValidator;
   private final CommentService commentService;
+  private final TicketService ticketService;
 
   /**
    * User controller.
@@ -51,12 +54,13 @@ public class UserController {
   public UserController(PersonService personService,
                         ModelMapper modelMapper,
                         TransactionService transactionService,
-                        UserValidator userValidator, CommentService commentService) {
+                        UserValidator userValidator, CommentService commentService, TicketService ticketService) {
     this.personService = personService;
     this.modelMapper = modelMapper;
     this.transactionService = transactionService;
     this.userValidator = userValidator;
     this.commentService = commentService;
+    this.ticketService = ticketService;
   }
 
   /**
@@ -126,11 +130,20 @@ public class UserController {
   }
 
   /**
+   * Get my transaction for buying ticket.
+   * */
+  @GetMapping("/transactions")
+  public List<TransactionHistory> myTransactions() {
+    return transactionService.getTicketsByPerson(personService.getInfo());
+  }
+
+  // TODO : FIX ME ADD FILTER
+  /**
    * Get my tickets.
    * */
   @GetMapping("/tickets")
-  public List<TransactionHistory> myTickets() {
-    return transactionService.getTicketsByPerson(personService.getInfo());
+  public List<Tickets> myTickets() {
+    return ticketService.findTicketsByPerson(personService.getInfo());
   }
 
   /**
