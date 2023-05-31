@@ -27,3 +27,8 @@ today and tomorrow. This application run with one command.
 # CODE
 `docker pull postgres:11.6`
 
+# Relations between entities 
+- Comments -> Person (Many to One) 
+- Comments -> Movie (Many to One) 
+- Cinema -> Movie(One to Many)
+- Sale - Movie (Many to Many)

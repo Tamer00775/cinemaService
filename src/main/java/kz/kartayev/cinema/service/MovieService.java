@@ -3,9 +3,13 @@ package kz.kartayev.cinema.service;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import kz.kartayev.cinema.model.Comment;
 import kz.kartayev.cinema.model.Movie;
+import kz.kartayev.cinema.model.Sales;
 import kz.kartayev.cinema.repository.MovieRepository;
+import kz.kartayev.cinema.repository.SalesRepository;
 import kz.kartayev.cinema.util.ErrorMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -18,11 +22,14 @@ public class MovieService {
   private final MovieRepository movieRepository;
   private final PersonService personService;
   private final CommentService commentService;
+  private final SalesRepository salesRepository;
   @Autowired
-  public MovieService(MovieRepository movieRepository, PersonService personService, CommentService commentService) {
+  public MovieService(MovieRepository movieRepository, PersonService personService,
+                      CommentService commentService, SalesRepository salesRepository) {
     this.movieRepository = movieRepository;
     this.personService = personService;
     this.commentService = commentService;
+    this.salesRepository = salesRepository;
   }
 
   //TODO: update this index() method
@@ -58,6 +65,11 @@ public class MovieService {
     movie.setRaiting((movie.getRaiting() + rating) / (
             (long) movie.getComments().size() - 1
     ));
+  }
+  public List<Movie> getSales() {
+    List<Movie> movies = salesRepository.findAll().stream().map(Sales::getMovie)
+            .collect(Collectors.toList());
+    return movies;
   }
 
   @Transactional

@@ -81,6 +81,13 @@ public class MovieController {
   public List<Movie> search(@RequestBody MovieDto movieDto) {
     return movieService.searchMovie(movieDto.getName());
   }
+  /**
+   * Get movies which have sales.
+   * */
+  @GetMapping("/sales")
+  public List<Movie> sales() {
+    return movieService.getSales();
+  }
 
   @DeleteMapping("/{id}/comment/{comment_id}")
   @PreAuthorize("hasRole('ROLE_ADMIN')")

@@ -36,7 +36,7 @@ public class TransactionValidator implements Validator {
       if(i <= 0 || i > 17) {
         errors.rejectValue("reserved", "", "You must be choose in 0 and 17 range!");
       }
-      Optional<Tickets> tickets = ticketService.findByTicketIdAndMovieId(i, movie);
+      Optional<Tickets> tickets = ticketService.findBySeatsAndMovieId(i, movie);
       if(tickets.isPresent()) {
         errors.rejectValue("reserved", "", "This place already reserved! Please "
                 + "choose another places!");

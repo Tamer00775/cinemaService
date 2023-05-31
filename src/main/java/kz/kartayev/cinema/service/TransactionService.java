@@ -50,6 +50,8 @@ public class TransactionService {
     history.setCinemaCenter(movie.getCinemaCenter());
     history.setPerson(person);
     int totalPrice = 0;
+    movie.setPlaces(movie.getPlaces() - reserve.length);
+    movieService.save(movie);
 
     for(int i : reserve) {
       Tickets tickets = new Tickets() ;
@@ -62,10 +64,7 @@ public class TransactionService {
       ticketService.save(tickets);
     }
 
-    history.setTotalPrice(totalPrice); // FIX
-    movie.setPlaces(movie.getPlaces() - reserve.length);
-
-    movieService.save(movie);
+    history.setTotalPrice(totalPrice);
     transactionRepository.save(history);
 
     person.setWallet(person.getWallet() - history.getTotalPrice());
